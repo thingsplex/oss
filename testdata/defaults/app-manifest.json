@@ -1,0 +1,204 @@
+{
+  "configs":[
+    {
+      "id": "selected_meters",
+      "label": {"en": "meters"},
+      "val_t": "str_map",
+      "ui": {
+        "type": "list_radio",
+        "select": [{}]
+      },
+      "val": {
+        "default": "nothing"
+      },
+      "is_required": true,
+      "hidden": false,
+      "config_point": "any"
+    },{
+      "id": "email",
+      "label": {"en": "Email"},
+      "val_t": "string",
+      "ui": {
+        "type": "input_string"
+      },
+      "val": {
+        "default": ""
+      },
+      "is_required": false,
+      "hidden": false,
+      "config_point": "any"
+    },{
+      "id": "emailCode",
+      "label": {"en": "Email code"},
+      "val_t": "string",
+      "ui": {
+        "type": "input_string"
+      },
+      "val": {
+        "default": ""
+      },
+      "is_required": false,
+      "hidden": false,
+      "config_point": "any"
+    }
+  ],
+  "ui_buttons": [
+    {
+      "id": "reset",
+      "label": {"en": "reset"},
+      "req": {
+        "serv": "oss",
+        "intf_t": "cmd.system.reset",
+        "val": "reset"
+      },
+      "hidden": false
+    }
+  ],
+  "ui_blocks": [
+    {
+      "id": "selected_meters",
+      "header": {"en": "Choose meters"},
+      "text": {"en": ""},
+      "configs": ["selected_meters"],
+      "buttons": [],
+      "footer": {"en": ""},
+      "hidden": false
+    },{
+      "id": "Email",
+      "header": {"en": "Enter your email"},
+      "text": {"en": ""},
+      "configs": ["email"],
+      "buttons": [],
+      "footer": {"en": ""},
+      "hidden": false
+    },{
+      "id": "Email code",
+      "header": {"en": "Email code received from previous step."},
+      "text": {"en": ""},
+      "configs": ["emailCode"],
+      "buttons": [],
+      "footer": {"en": ""},
+      "hidden": false
+    },
+    {
+      "id": "Reset",
+      "header": {"en": "Factory reset"},
+      "text": {"en": "This will remove devices, phoneNr and password"},
+      "configs": [],
+      "buttons": ["reset"],
+      "footer": {"en": ""},
+      "hidden": false
+    }
+  ],
+  "init_flow":["connect"],
+  "services": [
+    {
+      "name": "hue",
+      "alias": "Network managment",
+      "address": "/rt:ad/rn:hue/ad:1",
+      "interfaces": [
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.app.get_manifest",
+          "val_t": "null",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.system.sync",
+          "val_t": "null",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.system.reconnect",
+          "val_t": "null",
+          "ver": "1"
+        },
+        {
+          "intf_t": "out",
+          "msg_t": "evt.app.manifest_report",
+          "val_t": "object",
+          "ver": "1"
+        },{
+          "intf_t": "out",
+          "msg_t": "cmd.app.get_full_state",
+          "val_t": "string",
+          "ver": "1"
+        },{
+          "intf_t": "out",
+          "msg_t": "cmd.app.full_state_report",
+          "val_t": "object",
+          "ver": "1"
+        },{
+          "intf_t": "in",
+          "msg_t": "cmd.config.extended_set",
+          "val_t": "str_map",
+          "ver": "1"
+        },{
+          "intf_t": "in",
+          "msg_t": "cmd.auth.set_tokens",
+          "val_t": "str_map",
+          "ver": "1"
+        },
+        {
+          "intf_t": "out",
+          "msg_t": "evt.auth.login_report",
+          "val_t": "string",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.network.get_all_nodes",
+          "val_t": "null",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.thing.get_inclusion_report",
+          "val_t": "string",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.thing.inclusion",
+          "val_t": "string",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.thing.delete",
+          "val_t": "string",
+          "ver": "1"
+        },
+        {
+          "intf_t": "out",
+          "msg_t": "evt.thing.inclusion_report",
+          "val_t": "object",
+          "ver": "1"
+        },
+        {
+          "intf_t": "out",
+          "msg_t": "evt.thing.exclusion_report",
+          "val_t": "object",
+          "ver": "1"
+        },
+        {
+          "intf_t": "out",
+          "msg_t": "evt.network.all_nodes_report",
+          "val_t": "object",
+          "ver": "1"
+        },
+        {
+          "intf_t": "in",
+          "msg_t": "cmd.log.set_level",
+          "val_t": "string",
+          "ver": "1"
+        }
+      ]
+    }
+  ],
+  "app_state": {
+
+  }
+}

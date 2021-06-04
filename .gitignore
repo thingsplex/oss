@@ -1,0 +1,12 @@
+.idea
+.DS_Store
+oss
+*.exe
+
+VERSION
+control
+package/build
+
+.vscode
+
+src/testdata

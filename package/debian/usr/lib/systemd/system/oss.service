@@ -1,0 +1,14 @@
+[Unit]
+Description=oss
+
+[Service]
+Type=simple
+ExecStart=/opt/thingsplex/oss/oss
+User=oss
+WorkingDirectory=/opt/thingsplex/oss
+Restart=always
+StandardOutput=null
+StandardError=null
+
+[Install]
+WantedBy=multi-user.target

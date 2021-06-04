@@ -1,0 +1,31 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ]
+then
+  groupadd -r thingsplex || true
+  groupadd -r oss || true
+
+  useradd -r -N -M -d / -s /bin/false -g thingsplex oss || true
+
+  chown -R oss:thingsplex /var/log/thingsplex/oss/ || true
+  chown -R oss:oss /opt/thingsplex/oss/ || true
+fi
+
+deb-systemd-helper unmask oss.service >/dev/null || true
+
+if deb-systemd-helper --quiet was-enabled oss.service; then
+  systemctl enable oss.service || true
+else
+  deb-systemd-helper update-state oss.service >/dev/null || true
+fi
+
+if [ -d /run/systemd/system ]; then
+  systemctl --system daemon-reload >/dev/null || true
+
+  if [ -n "$2" ]; then
+    deb-systemd-invoke try-restart oss.service >/dev/null || true
+  else
+    deb-systemd-invoke start oss.service >/dev/null || true
+  fi
+fi
