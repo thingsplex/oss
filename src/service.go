@@ -91,82 +91,20 @@ func main() {
 		if !configs.IsConfigured() {
 		} else {
 			counter++
-			t := time.Now()
 
-			//----------------- Handle changing of hours and minutes -----------------//
-			var startHourForMinute int
-			var startHourForHour int
-			var startMinuteForMinute int
-			var endHour int
-			var endMinuteForMinute int
-
-			if t.Hour() == 00 {
-				startHourForMinute = 22
-			} else if t.Hour() == 01 {
-				startHourForMinute = 23
-			} else {
-				startHourForMinute = t.Hour() - 2
-			}
-
-			endHour = startHourForMinute
-
-			// if 0 < t.Hour() <= 02 {
-			// 	startHourForHour = 21 + t.Hour()
-			// }
-
-			if t.Hour() == 00 {
-				startHourForHour = 21
-			} else if t.Hour() == 01 {
-				startHourForHour = 22
-			} else if t.Hour() == 02 {
-				startHourForHour = 23
-			} else {
-				startHourForHour = t.Hour() - 3
-			}
-
-			if t.Minute() == 00 {
-				startMinuteForMinute = 55
-				startHourForMinute--
-			} else if t.Minute() == 01 {
-				startMinuteForMinute = 56
-				startHourForMinute--
-			} else if t.Minute() == 02 {
-				startMinuteForMinute = 57
-				startHourForMinute--
-			} else if t.Minute() == 03 {
-				startMinuteForMinute = 58
-				startHourForMinute--
-			} else if t.Minute() == 04 {
-				startMinuteForMinute = 59
-				startHourForMinute--
-			} else {
-				startMinuteForMinute = t.Minute() - 5
-			}
-
-			if startMinuteForMinute == 59 {
-				endMinuteForMinute = 0
-			} else {
-				endMinuteForMinute = startMinuteForMinute + 1
-			}
-			//------------------------------------------------------------------------//
-
-			startDateMinute := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02d",
-				t.Year(), t.Month(), t.Day(),
-				startHourForMinute, startMinuteForMinute, t.Second())
-			startDateHour := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02d.000Z",
-				t.Year(), t.Month(), t.Day(),
-				startHourForHour, t.Minute(), t.Second())
-			endDateForHour := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02d.000Z",
-				t.Year(), t.Month(), t.Day(),
-				endHour, t.Minute(), t.Second())
-			endDateForMinute := fmt.Sprintf("%d-%02d-%02dT%02d:%02d:%02d.000Z",
-				t.Year(), t.Month(), t.Day(),
-				endHour, endMinuteForMinute, t.Second())
+			now := time.Now().UTC().Format(time.RFC3339)
+			sixMinAgo := time.Now().Add(-6 * time.Minute).UTC().Format(time.RFC3339)
+			fiveMinAgo := time.Now().Add(-5 * time.Minute).UTC().Format(time.RFC3339)
+			oneHourAgo := time.Now().Add(-1 * time.Hour).UTC().Format(time.RFC3339)
+			log.Debug("now: ", now)
+			log.Debug("sixMinAgo: ", sixMinAgo)
+			log.Debug("fiveMinAgo: ", fiveMinAgo)
+			log.Debug("oneHourAgo: ", oneHourAgo)
 
 			// Get hour resolution (for cumulative powers) every 5 minutes. Only updates once per hour, but not at a specific time. Get 12 times per hour to not fall too far behind.
 			if counter >= 10 {
 				counter = 0
-				states.Telemetry, err = model.GetTelemetry(configs.AccessToken, startDateHour, endDateForHour, configs.SelectedMeters, 2)
+				states.Telemetry, err = model.GetTelemetry(configs.AccessToken, oneHourAgo, now, configs.SelectedMeters, 2)
 				if err != nil {
 					log.Error("Error getting by hour resolition. Err: ", err)
 				} else {
@@ -180,7 +118,8 @@ func main() {
 			}
 
 			// Get minute resolution every 30 seconds.
-			states.Telemetry, err = model.GetTelemetry(configs.AccessToken, startDateMinute, endDateForMinute, configs.SelectedMeters, 1)
+			states.Telemetry, err = model.GetTelemetry(configs.AccessToken, sixMinAgo, fiveMinAgo, configs.SelectedMeters, 1)
+			log.Debug("meter: ", states.Telemetry)
 			if err != nil {
 				log.Error("Error getting by minute resolition. Err: ", err)
 			} else {
@@ -199,7 +138,6 @@ func main() {
 						"e_import":       math.Round(eImport*100) / 100,
 						"e_export":       math.Round(eExport*100) / 100,
 					}
-
 					msg, adr := mdl.MakeMeterExtendedReportMsg("ossMeter", ExtendedReportMinute, nil)
 					mqtt.Publish(adr, msg)
 					break // Only get first meter in states.Telemetry
