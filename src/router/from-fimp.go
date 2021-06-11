@@ -138,6 +138,7 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 			conf := model.Configs{}
 			err := newMsg.Payload.GetObjectValue(&conf)
 			opStatus := "ok"
+			errorText := ""
 			if err != nil {
 				log.Error("Can't parse configuration object")
 				return
@@ -150,9 +151,11 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 				fc.configs.UserID, err = fc.auth.GetAuthCode(fc.configs.Email)
 				if err != nil {
 					opStatus = "error"
+					errorText = "Wrong or invalid email address."
 					log.Error(err)
 				} else {
 					opStatus = "ok"
+					errorText = ""
 				}
 			}
 
@@ -163,9 +166,11 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 				fc.configs.AccessToken, err = fc.auth.GetAuthToken(fc.configs.UserID, fc.configs.EmailCode)
 				if err != nil {
 					opStatus = "error"
+					errorText = "Wrong or invalid code."
 					log.Error("Error: ", err)
 				} else {
 					opStatus = "ok"
+					errorText = ""
 				}
 
 				log.Debug("AccessToken: ", fc.configs.AccessToken)
@@ -202,8 +207,9 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 			log.Debugf("App reconfigured . New parameters : %v", fc.configs)
 
 			configReport := model.ConfigReport{
-				OpStatus: opStatus,
-				AppState: *fc.appLifecycle.GetAllStates(),
+				OpStatus:  opStatus,
+				ErrorText: errorText,
+				AppState:  *fc.appLifecycle.GetAllStates(),
 			}
 			msg := fimpgo.NewMessage("evt.app.config_report", model.ServiceName, fimpgo.VTypeObject, configReport, nil, nil, newMsg.Payload)
 			msg.Source = "oss"

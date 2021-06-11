@@ -97,6 +97,7 @@ func (cf *Configs) IsConfigured() bool {
 }
 
 type ConfigReport struct {
-	OpStatus string    `json:"op_status"`
-	AppState AppStates `json:"app_state"`
+	OpStatus  string    `json:"op_status"`
+	ErrorText string    `json:"error_text"`
+	AppState  AppStates `json:"app_state"`
 }
