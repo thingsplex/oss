@@ -52,13 +52,23 @@
         "val": "reset"
       },
       "hidden": false
+    },
+    {
+      "id": "send_email",
+      "label": {"en": "Set email"},
+      "req": {
+        "serv": "oss",
+        "intf_t": "cmd.email.set",
+        "val": "send_email"
+      },
+      "hidden": true
     }
   ],
   "ui_blocks": [
     {
       "id": "selected_meters",
       "header": {"en": "Choose meters"},
-      "text": {"en": ""},
+      "text": {"en": "After you have logged in, a list of your Oss meters will appear here. Choose the one you want to include to your household, and click 'save'."},
       "configs": ["selected_meters"],
       "buttons": [],
       "footer": {"en": ""},
@@ -66,15 +76,15 @@
     },{
       "id": "Email",
       "header": {"en": "Enter your email"},
-      "text": {"en": ""},
+      "text": {"en": "Step 1: Enter the email adress which you use for the Oss app, and click save. You should then receive an email with a code, which will be used in next step."},
       "configs": ["email"],
-      "buttons": [],
+      "buttons": ["send_email"],
       "footer": {"en": ""},
       "hidden": false
     },{
-      "id": "Email code",
+      "id": "EmailCode",
       "header": {"en": "Email code received from previous step."},
-      "text": {"en": ""},
+      "text": {"en": "Step 2: After completing step 1 (above) you should have received an email containing a code. Enter this code here, and click 'save'. Your meters should then appear in the top box."},
       "configs": ["emailCode"],
       "buttons": [],
       "footer": {"en": ""},
@@ -83,7 +93,7 @@
     {
       "id": "Reset",
       "header": {"en": "Factory reset"},
-      "text": {"en": "This will remove devices, phoneNr and password"},
+      "text": {"en": "This will remove devices, email and code"},
       "configs": [],
       "buttons": ["reset"],
       "footer": {"en": ""},

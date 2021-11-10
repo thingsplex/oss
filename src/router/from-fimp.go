@@ -83,6 +83,7 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 			if fc.configs.AccessToken != "" {
 				if fc.states.IsConfigured() {
 					var meterSelect []interface{}
+					manifest.UIBlocks[0].Hidden = false
 					manifest.Configs[0].ValT = "str_map"
 					manifest.Configs[0].UI.Type = "list_radio"
 					for _, meters := range fc.states.Meters.Meters {
@@ -93,6 +94,7 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 
 					manifest.Configs[0].UI.Select = meterSelect
 				} else {
+					manifest.UIBlocks[0].Hidden = true
 					manifest.Configs[0].ValT = "string"
 					manifest.Configs[0].UI.Type = "input_readonly"
 					manifest.Configs[0].UI.Select = nil
@@ -101,6 +103,7 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 					manifest.Configs[0].Val = val
 				}
 			} else {
+				manifest.UIBlocks[0].Hidden = true
 				manifest.Configs[0].ValT = "string"
 				manifest.Configs[0].UI.Type = "input_readonly"
 				manifest.Configs[0].UI.Select = nil
@@ -108,10 +111,20 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 				val.Default = "You need to login first"
 				manifest.Configs[0].Val = val
 			}
-			if fc.configs.Email != "" && fc.configs.EmailCode != "" {
+			if fc.configs.Email != "" || fc.configs.EmailCode != "" {
 				manifest.UIBlocks[3].Hidden = false
 			} else {
 				manifest.UIBlocks[3].Hidden = true
+			}
+			if fc.configs.Email == "" {
+				// user needs to input email
+				manifest.UIBlocks[1].Hidden = false // email block
+				manifest.UIBlocks[2].Hidden = true  // email code block
+			}
+			if fc.configs.Email != "" && fc.configs.EmailCode == "" {
+				// user needs to input code
+				manifest.UIBlocks[1].Hidden = false
+				manifest.UIBlocks[2].Hidden = false
 			}
 			msg := fimpgo.NewMessage("evt.app.manifest_report", model.ServiceName, fimpgo.VTypeObject, manifest, nil, nil, newMsg.Payload)
 			msg.Source = "oss"
@@ -147,7 +160,7 @@ func (fc *FromFimpRouter) routeFimpMessage(newMsg *fimpgo.Message) {
 			if fc.configs.Email != conf.Email {
 				log.Debug("Old email: ", fc.configs.Email)
 				log.Info("New email: ", conf.Email)
-				fc.configs.Email = conf.Email
+				fc.configs.Email = strings.TrimSpace(conf.Email)
 				fc.configs.UserID, err = fc.auth.GetAuthCode(fc.configs.Email)
 				if err != nil {
 					opStatus = "error"
